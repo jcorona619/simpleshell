@@ -1,6 +1,8 @@
 #include "parse.h"
 #include "cshell.h"
 
+int end_of_file;
+
 
 int main(){
 
@@ -31,6 +33,9 @@ int main(){
         /* reset all flags to 0 */
         reset_global_flags();
 
+        /* parse_words(): calls parse(), sets global flags */
+        parse_words(s,argv,in_array,out_array);
+
      }
 
     killpg(getpgrp(), SIGTERM);
@@ -46,6 +51,40 @@ void parse_words(char *s, char **argv, char **in_array, char** out_array){
 	int j = 0;
 	in_array[0] = NULL;
 	out_array[0] = NULL;
+
+	while(1){
+
+		word = parse(s);
+
+		if(word == -255){
+			end_of_file = 1;
+			return;
+		}
+
+		if(word == 0){
+			//todo
+		}
+
+		if(word == '>'){
+			//todo
+		}
+
+		if(word == '<'){
+			//todo
+		}
+
+		if(word == '|'){
+			//todo
+		}
+
+		if(word == '&'){
+
+		}
+
+
+	}
+
+
 }
 
 void my_sig_handler(int signum){}
