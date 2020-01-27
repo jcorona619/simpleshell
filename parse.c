@@ -62,9 +62,13 @@ int parse(char *word){
         if(chr == '~'){
         	env = getenv("HOME");
         	while(strlen(env)){
-        		*word = *env++;
+        		*word++ = *env++;
         		count++;
         	}
+        	/* strip the '~' character */
+        	*word = '\0';
+        	count--;
+        	return count;
         }
         *word++ = chr;
         count++;

@@ -13,8 +13,8 @@
 #define MAXITEM 100
 
 void reset_global_flags();
-void sig_handler(int signum);
-void parse_words(char* s, char *argv[], char* in_array[], char* out_array);
+void my_sig_handler(int signum);
+void parse_words(char* s, char *argv[], char* in_array[], char* out_array[]);
 void pipe_process(char* argv[], int fd[], char* in_array, char* out_array);
 void redirect_input(char* argv[], char* in_array[]);
 void redirect_output(char* argv[], char* in_array[], char* out_array[]);
