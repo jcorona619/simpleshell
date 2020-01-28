@@ -4,9 +4,9 @@
 
 int end_of_file;
 int end_of_file;
-int redirect_right;
+int redirect_out;
 int duplicate_right;
-int redirect_left;
+int redirect_in;
 int pipe_flag;
 int background_flag;
 int empty_line;
@@ -37,7 +37,7 @@ int main(){
      while(1){
 
         /* PROMPT */
-        printf("%s>>",cur_dir);
+        printf("%s>> ",cur_dir);
 
         /* reset all flags to 0 */
         reset_global_flags();
@@ -55,6 +55,48 @@ int main(){
         if(end_of_file) break;
 
         if(empty_line) continue;
+
+        /* handle built in commands; cd */
+        if( (strcmp(argv[0], "cd")) == 0){
+        	if(argv[1] != NULL){
+        		if(argv[2] != NULL){
+        			perror("cd failed");
+        			continue;
+        		}
+        		if( (directory = chdir(argv[1])) == 1){
+        			perror("error");
+        		}
+        		getcwd(cwd,sizeof(cwd));
+        		printf("cwd: %s\n",cwd);
+        		cur_dir = basename(cwd);
+        		continue;
+        	}
+        	else if(argv[1] == NULL){
+        		home_dir = getenv("HOME");
+        		if(directory = chdir(home_dir) == -1){
+        			perror("error");
+        		}
+        		getcwd(cwd,sizeof(cwd));
+        		cur_dir = basename(cwd);
+        		continue;
+        	}
+        }
+
+
+        if( (pid1 = fork()) == -1){
+        	perror("fork failed");
+        	exit(1);
+        }
+
+        /* todo */
+        if(pid1 == 0){
+        	//TODO
+
+        	if( (new_process = execvp(argv[0],argv)) == -1){
+        		perror("execvp failed");
+        		exit(1);
+        	}
+        }
 
      }
 
@@ -82,29 +124,36 @@ void parse_words(char *s, char **argv, char **in_array, char** out_array){
 		}
 
 		if(word == 0){
-			if(i == 0){
-				empty_line = 1;
-				return;
-			}
+			if(i == 0) empty_line = 1;
+			return;
 		}
 
+		/* OUTPUT REDIRECTION FLAG */
 		if(*s == '>'){
-			//todo
+			redirect_out = 1;
+			break;
 		}
 
+		/* INPUT REDIRECTION FLAG */
 		if(*s == '<'){
-			//todo
+			redirect_in = 1;
+			break;
 		}
-
+		/* PIPE FLAG */
 		if(*s == '|'){
-			//todo
+			pipe_flag = 1;
+			break;
 		}
 
+		/* BACKGROUND PROCESS FLAG */
 		if(*s == '&'){
-
+			background_flag = 1;
+			break;
 		}
 
-
+		/* BASE CASE: WORD, COMMAND, FILE */
+		argv[i++] = s;
+		s = s + word + 1;
 	}
 
 
@@ -114,9 +163,9 @@ void sig_handler(int signum){}
 
 void reset_global_flags(){
 	end_of_file = 0;
-	redirect_right = 0;
+	redirect_out = 0;
     duplicate_right = 0;
-    redirect_left = 0;
+    redirect_in = 0;
     pipe_flag = 0;
     background_flag = 0;
     empty_line = 0;
